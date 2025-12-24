@@ -89,7 +89,7 @@ const CheckoutOverlay = ({ isOpen, onClose, onComplete }: CheckoutOverlayProps) 
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-full max-w-md bg-background rounded-2xl shadow-2xl border border-border max-h-[90vh] overflow-hidden"
+            className="fixed left-2 right-2 bottom-2 top-auto z-[60] sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:bottom-auto sm:w-full sm:max-w-md bg-background rounded-2xl shadow-2xl border border-border max-h-[85vh] overflow-hidden flex flex-col"
           >
             {step === 'success' ? (
               <div className="p-8 text-center">
@@ -128,7 +128,7 @@ const CheckoutOverlay = ({ isOpen, onClose, onComplete }: CheckoutOverlayProps) 
                   </motion.button>
                 </div>
 
-                <div className="p-6 space-y-6 overflow-y-auto max-h-[60vh]">
+                <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-y-auto flex-1">
                   {step === 'details' && (
                     <>
                       {/* Order Summary */}
