@@ -29,10 +29,16 @@ const MenuItemCard = ({ item, variant = 'grid' }: MenuItemCardProps) => {
         onClick={handleCardClick}
         className="flex flex-col overflow-hidden rounded-xl bg-card border border-border shadow-xl cursor-pointer"
       >
-        <div
-          className="relative w-full h-48 bg-cover bg-center"
-          style={{ backgroundImage: `url("${item.image}")` }}
-        >
+        <div className="relative w-full h-48 bg-secondary/30 flex items-center justify-center overflow-hidden">
+          <img 
+            src={item.image} 
+            alt={item.name} 
+            className="w-full h-full object-contain"
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1624371414361-e670edf4898d?w=400';
+            }}
+          />
           {item.isBestseller && (
             <div className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm px-2 py-1 rounded-md border border-border">
               <p className="text-foreground text-xs font-bold uppercase tracking-wider">Must Try</p>
@@ -81,10 +87,17 @@ const MenuItemCard = ({ item, variant = 'grid' }: MenuItemCardProps) => {
         onClick={handleCardClick}
         className="flex items-start gap-3 p-3 bg-card rounded-xl border border-border shadow-md cursor-pointer"
       >
-        <div
-          className="w-24 h-24 shrink-0 bg-cover bg-center rounded-lg"
-          style={{ backgroundImage: `url("${item.image}")` }}
-        />
+        <div className="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-secondary/30 flex items-center justify-center">
+          <img 
+            src={item.image} 
+            alt={item.name} 
+            className="w-full h-full object-contain"
+            loading="lazy"
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1624371414361-e670edf4898d?w=400';
+            }}
+          />
+        </div>
         <div className="flex flex-col flex-1 h-full justify-between min-h-24">
           <div>
             <div className="flex items-center gap-2 mb-1">
@@ -122,11 +135,15 @@ const MenuItemCard = ({ item, variant = 'grid' }: MenuItemCardProps) => {
       onClick={handleCardClick}
       className="flex flex-col gap-3 p-3 bg-card rounded-xl border border-border shadow-lg cursor-pointer"
     >
-      <div className="aspect-square w-full relative rounded-lg overflow-hidden">
+      <div className="aspect-square w-full relative rounded-lg overflow-hidden bg-secondary/30">
         <img
           src={item.image}
           alt={item.name}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain"
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1624371414361-e670edf4898d?w=400';
+          }}
         />
         <motion.button
           whileTap={{ scale: 0.9 }}
