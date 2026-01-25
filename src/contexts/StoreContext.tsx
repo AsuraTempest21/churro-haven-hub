@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface MenuItem {
   id: string;
@@ -513,6 +513,63 @@ export const StoreProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [user, setUser] = useState<User | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [orderHistory, setOrderHistory] = useState<OrderHistory[]>([]);
+  const [locationAutoDetected, setLocationAutoDetected] = useState(false);
+
+  // GPS-based location detection on first load
+  useEffect(() => {
+    if (locationAutoDetected) return;
+    
+    // Location coordinates for each branch (approximate)
+    const locationCoords: Record<string, { lat: number; lng: number }> = {
+      'balewadi': { lat: 18.5765, lng: 73.7695 },
+      'koregaon-park': { lat: 18.5362, lng: 73.8942 },
+      'nibm': { lat: 18.4699, lng: 73.9056 },
+      'kopa-mall': { lat: 18.5679, lng: 73.9143 },
+      'hinjewadi': { lat: 18.5912, lng: 73.7380 },
+      'kothrud': { lat: 18.5074, lng: 73.8077 },
+    };
+
+    const findNearestLocation = (userLat: number, userLng: number) => {
+      let nearestLocation = locations[0];
+      let minDistance = Infinity;
+
+      locations.forEach(location => {
+        const coords = locationCoords[location.id];
+        if (coords) {
+          // Haversine distance approximation
+          const distance = Math.sqrt(
+            Math.pow(userLat - coords.lat, 2) + Math.pow(userLng - coords.lng, 2)
+          );
+          if (distance < minDistance) {
+            minDistance = distance;
+            nearestLocation = location;
+          }
+        }
+      });
+
+      return nearestLocation;
+    };
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const nearest = findNearestLocation(
+            position.coords.latitude,
+            position.coords.longitude
+          );
+          setSelectedLocation(nearest);
+          setLocationAutoDetected(true);
+        },
+        () => {
+          // On error or denial, keep default location
+          setLocationAutoDetected(true);
+        },
+        { timeout: 5000, enableHighAccuracy: false }
+      );
+    } else {
+      setLocationAutoDetected(true);
+    }
+  }, [locationAutoDetected]);
 
   const getAvailableItems = (): MenuItem[] => {
     return menuItems.filter(item => item.availability.includes(selectedLocation.id));

@@ -58,9 +58,9 @@ const Menu = () => {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
-        <div className="flex items-center p-4 gap-4">
+      {/* Header - Fixed */}
+      <header className="fixed top-0 left-0 right-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
+        <div className="flex items-center p-4 gap-4 max-w-md mx-auto">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/')}
@@ -90,7 +90,7 @@ const Menu = () => {
         </div>
         
         {/* Location Notice */}
-        <div className="bg-card px-4 py-2 flex items-center justify-between border-t border-border">
+        <div className="bg-card px-4 py-2 flex items-center justify-between border-t border-border max-w-md mx-auto">
           <p className="text-xs text-foreground/90 font-medium">
             Viewing menu for {selectedLocation.name} branch.
           </p>
@@ -102,6 +102,9 @@ const Menu = () => {
           </button>
         </div>
       </header>
+
+      {/* Main content with top padding for fixed header */}
+      <main className="pt-[120px] max-w-md mx-auto">
 
       {/* Restaurant Info */}
       <div className="p-4">
@@ -141,7 +144,7 @@ const Menu = () => {
 
       {/* Category Tabs */}
       <div className="sticky top-[120px] z-20 bg-background py-2 shadow-md border-t border-border">
-        <div className="flex gap-3 px-4 overflow-x-auto no-scrollbar">
+        <div className="flex gap-3 px-4 overflow-x-auto no-scrollbar max-w-md mx-auto">
           {categories.map((category) => {
             const isActive = activeCategory === category.id;
             return (
@@ -163,37 +166,38 @@ const Menu = () => {
         </div>
       </div>
 
-      {/* Menu Items */}
-      <div className="p-4 space-y-6">
-        <div>
-          <h2 className="text-foreground text-xl font-bold mb-4 flex items-center gap-2">
-            {activeCategory === 'bestsellers' && <Flame className="h-5 w-5 text-primary" />}
-            {categories.find(c => c.id === activeCategory)?.label || 'All Items'}
-            <span className="text-sm font-normal text-muted-foreground">
-              ({filteredItems.length} items)
-            </span>
-          </h2>
-          <div className="flex flex-col gap-4">
-            {filteredItems.map((item, index) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className={highlightedItemId === item.id ? 'ring-2 ring-primary rounded-xl' : ''}
-              >
-                <MenuItemCard item={item} variant="list" />
-              </motion.div>
-            ))}
+        {/* Menu Items */}
+        <div className="p-4 space-y-6">
+          <div>
+            <h2 className="text-foreground text-xl font-bold mb-4 flex items-center gap-2">
+              {activeCategory === 'bestsellers' && <Flame className="h-5 w-5 text-primary" />}
+              {categories.find(c => c.id === activeCategory)?.label || 'All Items'}
+              <span className="text-sm font-normal text-muted-foreground">
+                ({filteredItems.length} items)
+              </span>
+            </h2>
+            <div className="flex flex-col gap-4">
+              {filteredItems.map((item, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className={highlightedItemId === item.id ? 'ring-2 ring-primary rounded-xl' : ''}
+                >
+                  <MenuItemCard item={item} variant="list" />
+                </motion.div>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {filteredItems.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">No items available in this category at {selectedLocation.name}.</p>
-          </div>
-        )}
-      </div>
+          {filteredItems.length === 0 && (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">No items available in this category at {selectedLocation.name}.</p>
+            </div>
+          )}
+        </div>
+      </main>
 
       {/* Floating Cart Button */}
       {cartCount > 0 && (
