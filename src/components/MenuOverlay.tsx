@@ -103,7 +103,7 @@ const MenuOverlay = ({ isOpen, onClose }: MenuOverlayProps) => {
               </div>
 
               {/* Menu Items */}
-              <nav className="flex-1 p-6">
+              <nav className="flex-1 overflow-y-auto p-6">
                 <ul className="space-y-2">
                   {menuItems.map((item, index) => (
                     <motion.li
