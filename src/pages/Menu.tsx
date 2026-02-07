@@ -1,11 +1,14 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, MapPin, ChevronDown, Flame, Star } from 'lucide-react';
 import MenuItemCard from '@/components/MenuItemCard';
+import MenuItemSkeleton from '@/components/MenuItemSkeleton';
+import PullToRefreshIndicator from '@/components/PullToRefreshIndicator';
 import LocationOverlay from '@/components/LocationOverlay';
 import CartOverlay from '@/components/CartOverlay';
 import { useStore } from '@/contexts/StoreContext';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 
 // Synced categories matching Index.tsx
 const categories = [
@@ -25,11 +28,35 @@ const Menu = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [locationOpen, setLocationOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   
   const { selectedLocation, getAvailableItems, getCartCount } = useStore();
   const cartCount = getCartCount();
   
   const availableItems = getAvailableItems();
+
+  // Simulate initial loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 800);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Pull to refresh handler
+  const handleRefresh = useCallback(async () => {
+    setIsLoading(true);
+    // Simulate refresh delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsLoading(false);
+  }, []);
+
+  const {
+    containerRef,
+    isRefreshing,
+    pullDistance,
+    pullProgress,
+  } = usePullToRefresh({ onRefresh: handleRefresh });
   
   // Handle category from URL
   const categoryParam = searchParams.get('category');
@@ -57,7 +84,17 @@ const Menu = () => {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div 
+      ref={containerRef}
+      className="min-h-screen bg-background pb-24 overflow-y-auto"
+    >
+      {/* Pull to Refresh Indicator */}
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        pullProgress={pullProgress}
+        isRefreshing={isRefreshing}
+      />
+
       {/* Header - Fixed */}
       <header className="fixed top-0 left-0 right-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border">
         <div className="flex items-center p-4 gap-4 max-w-md mx-auto">
@@ -104,7 +141,10 @@ const Menu = () => {
       </header>
 
       {/* Main content with top padding for fixed header */}
-      <main className="pt-[120px] max-w-md mx-auto">
+      <main 
+        className="pt-[120px] max-w-md mx-auto"
+        style={{ transform: `translateY(${pullDistance}px)` }}
+      >
 
       {/* Restaurant Info */}
       <div className="p-4">
@@ -172,26 +212,35 @@ const Menu = () => {
             <h2 className="text-foreground text-xl font-bold mb-4 flex items-center gap-2">
               {activeCategory === 'bestsellers' && <Flame className="h-5 w-5 text-primary" />}
               {categories.find(c => c.id === activeCategory)?.label || 'All Items'}
-              <span className="text-sm font-normal text-muted-foreground">
-                ({filteredItems.length} items)
-              </span>
+              {!isLoading && (
+                <span className="text-sm font-normal text-muted-foreground">
+                  ({filteredItems.length} items)
+                </span>
+              )}
             </h2>
             <div className="flex flex-col gap-4">
-              {filteredItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className={highlightedItemId === item.id ? 'ring-2 ring-primary rounded-xl' : ''}
-                >
-                  <MenuItemCard item={item} variant="list" />
-                </motion.div>
-              ))}
+              {isLoading ? (
+                // Show skeleton loaders
+                Array.from({ length: 4 }).map((_, index) => (
+                  <MenuItemSkeleton key={index} variant="list" />
+                ))
+              ) : (
+                filteredItems.map((item, index) => (
+                  <motion.div
+                    key={item.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className={highlightedItemId === item.id ? 'ring-2 ring-primary rounded-xl' : ''}
+                  >
+                    <MenuItemCard item={item} variant="list" />
+                  </motion.div>
+                ))
+              )}
             </div>
           </div>
 
-          {filteredItems.length === 0 && (
+          {!isLoading && filteredItems.length === 0 && (
             <div className="text-center py-12">
               <p className="text-muted-foreground">No items available in this category at {selectedLocation.name}.</p>
             </div>
